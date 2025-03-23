@@ -1,5 +1,5 @@
 {
-  "name": "--force",
+  "name": "run-planification",
   "version": "0.1.0",
   "private": true,
   "scripts": {
