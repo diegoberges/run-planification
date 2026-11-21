@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+@import 'flowbite-react/plugin/tailwindcss';
+@source '../.flowbite-react/class-list.json';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+/* Keep Leaflet's own control/marker styling intact under Tailwind's preflight reset. */
+.leaflet-container {
+  font: inherit;
+}
