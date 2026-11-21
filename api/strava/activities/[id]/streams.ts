@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getValidSession, fetchActivityStreams } from '../../../_lib/strava'
+import { getValidSession, fetchActivityStreams } from '../../../_lib/strava.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const activityId = Number.parseInt(String(req.query.id), 10)

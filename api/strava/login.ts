@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { randomBytes } from 'node:crypto'
-import { writeOAuthStateCookie } from '../_lib/session'
+import { writeOAuthStateCookie } from '../_lib/session.js'
 
 function appBaseUrl(req: VercelRequest): string {
   if (process.env.APP_BASE_URL) return process.env.APP_BASE_URL

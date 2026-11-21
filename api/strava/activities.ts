@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getValidSession } from '../_lib/strava'
-import { fetchAthleteActivities } from '../_lib/strava'
+import { getValidSession } from '../_lib/strava.js'
+import { fetchAthleteActivities } from '../_lib/strava.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const session = await getValidSession(req, res)

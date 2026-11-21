@@ -8,8 +8,11 @@ body,
   height: 100%;
 }
 
-body {
-  margin: 0;
+@layer base {
+  body {
+    margin: 0;
+    @apply bg-gray-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
+  }
 }
 
 /* Keep Leaflet's own control/marker styling intact under Tailwind's preflight reset. */

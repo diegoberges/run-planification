@@ -60,3 +60,18 @@ export function formatDuration(distanceMeters: number, paceSecPerKm: number): st
   }
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
+
+/** Parses a km value typed with either "," or "." as decimal separator. */
+export function parseKm(text: string): number | undefined {
+  const n = Number.parseFloat(text.trim().replace(',', '.'))
+  return Number.isFinite(n) && n >= 0 ? n : undefined
+}
+
+export function formatKm(km: number): string {
+  return km.toFixed(2)
+}
+
+/** Pace parser adapted to CommitInput's contract (undefined = invalid). */
+export function parsePaceInput(text: string): number | undefined {
+  return parsePace(text) ?? undefined
+}

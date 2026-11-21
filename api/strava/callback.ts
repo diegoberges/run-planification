@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { clearOAuthStateCookie, readOAuthStateCookie, writeSession } from '../_lib/session'
-import { exchangeCodeForToken } from '../_lib/strava'
+import { clearOAuthStateCookie, readOAuthStateCookie, writeSession } from '../_lib/session.js'
+import { exchangeCodeForToken } from '../_lib/strava.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { code, state, error } = req.query

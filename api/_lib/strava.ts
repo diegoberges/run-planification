@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { readSession, writeSession, type StravaSession } from './session'
+import { readSession, writeSession, type StravaSession } from './session.js'
 
 const STRAVA_API_BASE = 'https://www.strava.com/api/v3'
 const STRAVA_OAUTH_TOKEN_URL = 'https://www.strava.com/oauth/token'

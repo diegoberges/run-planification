@@ -1,4 +1,4 @@
-import type { AppState, FeedMarker, MapStyleId, PaceZone, PersistedAppState, Track } from '../types/track'
+import type { AppState, FeedMarker, MapStyleId, PaceZone, Track } from '../types/track'
 
 export const initialAppState: AppState = {
   track: null,
@@ -23,7 +23,9 @@ export type Action =
   | { type: 'SET_HOVER_DISTANCE'; distanceMeters: number | null }
   | { type: 'SET_IMPORT_PANEL_OPEN'; open: boolean }
   | { type: 'SET_PLACING_MARKER_TYPE'; markerType: FeedMarker['type'] | null }
-  | { type: 'HYDRATE_FROM_STORAGE'; state: PersistedAppState }
+  /** Appends a new zone right after the last one, computed from the latest state so rapid
+   * repeated clicks never create overlapping zones. */
+  | { type: 'APPEND_ZONE'; id: string; lengthMeters: number; fallbackPaceSecPerKm: number }
 
 export function trackReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -90,15 +92,19 @@ export function trackReducer(state: AppState, action: Action): AppState {
     case 'SET_PLACING_MARKER_TYPE':
       return { ...state, ui: { ...state.ui, placingMarkerType: action.markerType } }
 
-    case 'HYDRATE_FROM_STORAGE':
-      return {
-        ...state,
-        track: action.state.track,
-        zones: action.state.zones,
-        markers: action.state.markers,
-        settings: action.state.settings,
-        ui: { ...state.ui, importPanelOpen: action.state.track === null },
+    case 'APPEND_ZONE': {
+      if (!state.track) return state
+      const total = state.track.totalDistanceMeters
+      const lastEnd = state.zones.reduce((max, z) => Math.max(max, z.endDistanceMeters), 0)
+      if (lastEnd >= total - 1) return state
+      const zone: PaceZone = {
+        id: action.id,
+        startDistanceMeters: lastEnd,
+        endDistanceMeters: Math.min(lastEnd + action.lengthMeters, total),
+        paceSecPerKm: state.settings.globalPaceSecPerKm ?? action.fallbackPaceSecPerKm,
       }
+      return { ...state, zones: [...state.zones, zone] }
+    }
 
     default:
       return state

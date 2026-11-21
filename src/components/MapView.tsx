@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { CircleMarker, MapContainer, Marker, Polyline, TileLayer, useMap } from 'react-leaflet'
 import { findNearestIndexByLatLng, interpolateAtDistance } from '../lib/geo'
 import { MAP_STYLES } from '../lib/mapStyles'
+import { comparePace, PACE_COMPARISON_COLORS } from '../lib/pace'
 import { useTrackContext } from '../state/TrackContext'
 import type { FeedMarker } from '../types/track'
 import { MapStyleSwitch } from './MapStyleSwitch'
@@ -76,6 +77,36 @@ function RoutePolyline() {
   )
 }
 
+/** Re-draws each pace zone's stretch of the route on top of the base line, colored by
+ * whether it's faster/slower than the global pace — same colors as the profile bands. */
+function ZoneSegments() {
+  const { state } = useTrackContext()
+  const track = state.track
+  const segments = useMemo(() => {
+    if (!track) return []
+    return state.zones.map((zone) => {
+      const positions: [number, number][] = []
+      const start = interpolateAtDistance(track.points, zone.startDistanceMeters)
+      if (start) positions.push([start.lat, start.lon])
+      for (const p of track.points) {
+        if (p.distance > zone.startDistanceMeters && p.distance < zone.endDistanceMeters) positions.push([p.lat, p.lon])
+      }
+      const end = interpolateAtDistance(track.points, zone.endDistanceMeters)
+      if (end) positions.push([end.lat, end.lon])
+      const color = PACE_COMPARISON_COLORS[comparePace(zone.paceSecPerKm, state.settings.globalPaceSecPerKm)].border
+      return { id: zone.id, positions, color }
+    })
+  }, [track, state.zones, state.settings.globalPaceSecPerKm])
+
+  return (
+    <>
+      {segments.map((s) => (
+        <Polyline key={s.id} positions={s.positions} interactive={false} pathOptions={{ color: s.color, weight: 6, opacity: 0.9 }} />
+      ))}
+    </>
+  )
+}
+
 /** Highlights the point on the map matching the current hoverDistanceMeters, whichever side
  * (map or profile) originated the hover. */
 function HoverPositionMarker() {
@@ -121,7 +152,7 @@ export function MapView() {
   const style = MAP_STYLES[state.settings.mapStyle]
 
   return (
-    <div className="relative h-80 w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 sm:h-96">
+    <div className="relative isolate z-0 h-80 w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 sm:h-96">
       <MapContainer center={[40.4168, -3.7038]} zoom={6} className="h-full w-full" scrollWheelZoom>
         <TileLayer
           key={state.settings.mapStyle}
@@ -133,6 +164,7 @@ export function MapView() {
         />
         <FitBoundsOnLoad trackId={state.track?.id ?? null} />
         <RoutePolyline />
+        <ZoneSegments />
         <HoverPositionMarker />
         <FeedMarkerPins />
       </MapContainer>
